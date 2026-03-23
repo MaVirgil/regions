@@ -1,0 +1,1 @@
+Dette er tekstfilen ved navn 'test.txt', den ligger under /resources

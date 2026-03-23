@@ -1,7 +1,9 @@
 package com.mavi.regioner.controller;
 
+import com.mavi.regioner.Exception.ResourceNotFoundException;
 import com.mavi.regioner.model.Region;
 import com.mavi.regioner.repository.RegionRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("region")
+@CrossOrigin("*")
 public class RegionRestController {
 
     private final RegionRepository regionRepository;
@@ -21,6 +24,26 @@ public class RegionRestController {
     @GetMapping
     public List<Region> getRegions() {
         return regionRepository.findAll();
+    }
+
+    @GetMapping("/{name}")
+    public ResponseEntity<Region> getRegionByName(@PathVariable String name) {
+
+        Region region = regionRepository.findRegionByName(name).orElseThrow( () -> new ResourceNotFoundException("Resource not found!", name));
+
+        return ResponseEntity.ok(region);
+    }
+
+    @PostMapping
+    public ResponseEntity<Region> addRegion(@RequestBody Region region) {
+        System.out.println(region);
+
+        if (regionRepository.findById(region.getCode()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+        }
+
+        var added = regionRepository.save(region);
+        return ResponseEntity.ok(added);
     }
 
     @DeleteMapping
